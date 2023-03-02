@@ -3,8 +3,9 @@ module.exports = (app) => {
 
 	var router = require("express").Router();
 
-	// Create a new Building
 	router.post("/", rooms.create);
+	router.patch("/:id", rooms.update);
+	router.delete("/:id", rooms.delete);
 
 	app.use("/api/rooms", router);
 };

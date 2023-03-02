@@ -7,7 +7,7 @@ module.exports = (app) => {
 	router.post("/", locations.create);
 
 	// Update a Location with id
-	router.put("/:id", locations.update);
+	router.patch("/:id", locations.update);
 
 	// Delete a Location with id
 	router.delete("/:id", locations.delete);
