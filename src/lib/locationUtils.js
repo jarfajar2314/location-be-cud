@@ -60,6 +60,7 @@ exports.createLocationDetail = (location) => {
 					name: location.room,
 					site: location.site,
 					building: location.building,
+					floor: location.floor,
 				});
 				room.save(room).then((data) => {
 					if (data)

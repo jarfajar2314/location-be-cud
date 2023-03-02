@@ -1,5 +1,6 @@
 const db = require("../models");
 const Location = db.location;
+const locationUtils = require("../lib/locationUtils.js");
 
 // Create and Save a new Location
 exports.create = (req, res) => {
@@ -10,22 +11,38 @@ exports.create = (req, res) => {
 	}
 
 	const location = new Location({
-		site: req.body.site,
-		building: req.body.building,
-		room: req.body.room,
-		floor: req.body.floor,
+		...req.body,
 	});
 
-	location
-		.save(location)
-		.then((data) => {
-			res.send(data);
-		})
-		.catch((err) => {
-			res.status(500).send({
-				message: err.message || "Some error occurred.",
+	locationUtils.isSiteValid(req.body.site).then((valid) => {
+		if (valid) {
+			Location.findOne({
+				...req.body,
+			}).then((locationFound) => {
+				if (!locationFound) {
+					location
+						.save(location)
+						.then((data) => {
+							locationUtils.createLocationDetail(location);
+							res.send(data);
+						})
+						.catch((err) => {
+							res.status(500).send({
+								message: err.message || "Some error occurred.",
+							});
+						});
+				} else {
+					return res.status(400).send({
+						message: `Location already exist.`,
+					});
+				}
 			});
-		});
+		} else {
+			return res.status(400).send({
+				message: `Site : ${req.body.site} not found.`,
+			});
+		}
+	});
 };
 
 // Update a Location by the id in the request
@@ -44,7 +61,10 @@ exports.update = (req, res) => {
 				res.status(404).send({
 					message: `Cannot update Location with id=${id}. Maybe Location was not found!`,
 				});
-			} else res.send({ message: "Location was updated successfully." });
+			} else {
+				locationUtils.createLocationDetail(location);
+				res.send({ message: "Location was updated successfully." });
+			}
 		})
 		.catch((err) => {
 			res.status(500).send({

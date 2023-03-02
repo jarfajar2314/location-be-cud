@@ -5,43 +5,6 @@ const Building = db.building;
 const Floor = db.floor;
 const locationUtils = require("../lib/locationUtils.js");
 
-const createLocationDetail = (room) => {
-	Building.findOne({ name: room.building, site: room.site }).then((data) => {
-		if (!data) {
-			const building = new Building({
-				name: room.building,
-				site: room.site,
-			});
-			building.save(building).then((data) => {
-				if (data)
-					console.log(
-						`Building '${room.building}' on ${room.site} created.`
-					);
-			});
-		}
-	});
-	Floor.findOne({
-		name: room.floor,
-		site: room.site,
-		building: room.building,
-	}).then((data) => {
-		if (!data) {
-			const floor = new Floor({
-				name: room.floor,
-				site: room.site,
-				building: room.building,
-			});
-			floor.save(floor).then((data) => {
-				if (data)
-					console.log(
-						`Floor '${room.floor}' on '${room.site}:${room.building}' created.`
-					);
-			});
-		}
-	});
-};
-
-// Create and Save a new Room
 exports.create = (req, res) => {
 	// Validate request
 	if (!req.body.name) {
@@ -50,24 +13,18 @@ exports.create = (req, res) => {
 	}
 
 	const room = new Room({
-		name: req.body.name,
-		site: req.body.site,
-		building: req.body.building,
-		floor: req.body.floor,
+		...req.body,
 	});
 
 	locationUtils.isSiteValid(room.site).then((valid) => {
 		if (valid) {
 			Room.findOne({
-				name: req.body.name,
-				site: req.body.site,
-				building: req.body.building,
-				floor: req.body.floor,
-			}).then((data) => {
-				if (!data) {
-					createLocationDetail(room);
+				...req.body,
+			}).then((roomFound) => {
+				if (!roomFound) {
 					room.save(room)
 						.then((data) => {
+							locationUtils.createLocationDetail(room);
 							res.send(data);
 						})
 						.catch((err) => {
@@ -101,9 +58,9 @@ exports.update = (req, res) => {
 
 	locationUtils.isSiteValid(room.site).then((valid) => {
 		if (valid) {
-			createLocationDetail(room);
 			Room.findByIdAndUpdate(id, req.body)
 				.then((data) => {
+					locationUtils.createLocationDetail(room);
 					res.send({ message: "Room was updated successfully." });
 				})
 				.catch((err) => {
