@@ -3,7 +3,7 @@ const Room = db.room;
 const Site = db.site;
 const Building = db.building;
 const Floor = db.floor;
-const dataCheck = require("../lib/datacheck.js");
+const locationUtils = require("../lib/locationUtils.js");
 
 const createLocationDetail = (room) => {
 	Building.findOne({ name: room.building, site: room.site }).then((data) => {
@@ -56,7 +56,7 @@ exports.create = (req, res) => {
 		floor: req.body.floor,
 	});
 
-	dataCheck.isSiteValid(room.site).then((valid) => {
+	locationUtils.isSiteValid(room.site).then((valid) => {
 		if (valid) {
 			Room.findOne({
 				name: req.body.name,
@@ -99,7 +99,7 @@ exports.update = (req, res) => {
 
 	const id = req.params.id;
 
-	dataCheck.isSiteValid(room.site).then((valid) => {
+	locationUtils.isSiteValid(room.site).then((valid) => {
 		if (valid) {
 			createLocationDetail(room);
 			Room.findByIdAndUpdate(id, req.body)
