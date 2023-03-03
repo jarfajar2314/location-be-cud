@@ -6,6 +6,7 @@ module.exports = (app) => {
 	router.post("/", rooms.create);
 	router.patch("/:id", rooms.update);
 	router.delete("/:id", rooms.delete);
+	router.get("/", rooms.findAll);
 
 	app.use("/api/rooms", router);
 };

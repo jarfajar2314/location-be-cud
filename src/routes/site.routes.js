@@ -3,8 +3,9 @@ module.exports = (app) => {
 
 	var router = require("express").Router();
 
-	// Create a new Site
 	router.post("/", sites.create);
+
+	router.get("/", sites.findAll);
 
 	app.use("/api/sites", router);
 };

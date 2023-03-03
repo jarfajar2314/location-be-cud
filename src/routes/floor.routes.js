@@ -3,8 +3,9 @@ module.exports = (app) => {
 
 	var router = require("express").Router();
 
-	// Create a new Building
 	router.post("/", floors.create);
+
+	router.get("/", floors.findAll);
 
 	app.use("/api/floors", router);
 };

@@ -91,3 +91,28 @@ exports.delete = (req, res) => {
 			});
 		});
 };
+
+exports.findAll = (req, res) => {
+	var query = {};
+	if (req.query.id) query._id = req.query.id;
+	if (req.query.site)
+		query.site = { $regex: `^${req.query.site}$`, $options: "i" };
+	if (req.query.building)
+		query.building = { $regex: `^${req.query.building}$`, $options: "i" };
+	if (req.query.floor)
+		query.floor = { $regex: `^${req.query.floor}$`, $options: "i" };
+
+	Room.find(query)
+		.then((data) => {
+			if (!data.length)
+				res.status(404).send({
+					message: `Room not found.`,
+				});
+			else res.send(data);
+		})
+		.catch((err) => {
+			res.status(404).send({
+				message: err.message || "Room not found.",
+			});
+		});
+};

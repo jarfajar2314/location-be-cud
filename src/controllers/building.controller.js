@@ -27,16 +27,15 @@ exports.create = (req, res) => {
 		});
 };
 
-exports.findBySite = (req, res) => {
-	const siteName = req.params.siteName;
-
-	Building.findOne({
-		site: siteName,
-	})
+exports.findAll = (req, res) => {
+	var query = {};
+	if (req.query.site)
+		query.site = { $regex: `^${req.query.site}$`, $options: "i" };
+	Building.find(query)
 		.then((data) => {
-			if (!data)
+			if (!data.length)
 				res.status(404).send({
-					message: `site '${siteName}' not found.`,
+					message: `site not found.`,
 				});
 			else res.send(data);
 		})

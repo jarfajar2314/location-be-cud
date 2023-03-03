@@ -6,8 +6,7 @@ module.exports = (app) => {
 	// Create a new Building
 	router.post("/", buildings.create);
 
-	// Find Building by Site
-	router.get("/:siteName", buildings.findBySite);
+	router.get("/", buildings.findAll);
 
 	// // Update a Building with id
 	// router.put("/:id", buildings.update);

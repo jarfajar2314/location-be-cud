@@ -26,3 +26,26 @@ exports.create = (req, res) => {
 			});
 		});
 };
+
+exports.findAll = (req, res) => {
+	var query = {};
+	if (req.query.id) query._id = req.query.id;
+	if (req.query.site)
+		query.site = { $regex: `^${req.query.site}$`, $options: "i" };
+	if (req.query.building)
+		query.building = { $regex: `^${req.query.building}$`, $options: "i" };
+
+	Floor.find(query)
+		.then((data) => {
+			if (!data.length)
+				res.status(404).send({
+					message: `Floor not found.`,
+				});
+			else res.send(data);
+		})
+		.catch((err) => {
+			res.status(404).send({
+				message: err.message || "Floor not found.",
+			});
+		});
+};

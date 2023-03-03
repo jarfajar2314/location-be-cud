@@ -112,3 +112,30 @@ exports.deleteAll = (req, res) => {
 			});
 		});
 };
+
+exports.findAll = (req, res) => {
+	var query = {};
+	if (req.query.id) query._id = req.query.id;
+	if (req.query.site)
+		query.site = { $regex: `^${req.query.site}$`, $options: "i" };
+	if (req.query.building)
+		query.building = { $regex: `^${req.query.building}$`, $options: "i" };
+	if (req.query.floor)
+		query.floor = { $regex: `^${req.query.floor}$`, $options: "i" };
+	if (req.query.room)
+		query.room = { $regex: `^${req.query.room}$`, $options: "i" };
+
+	Location.find(query)
+		.then((data) => {
+			if (!data.length)
+				res.status(404).send({
+					message: `site not found.`,
+				});
+			else res.send(data);
+		})
+		.catch((err) => {
+			res.status(404).send({
+				message: err.message || "Location not found.",
+			});
+		});
+};
