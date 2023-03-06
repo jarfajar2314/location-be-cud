@@ -13,5 +13,7 @@ module.exports = (app) => {
 
 	router.get("/", locations.findAll);
 
+	router.post("/mq", locations.testRabbitMQ);
+
 	app.use("/api/locations", router);
 };

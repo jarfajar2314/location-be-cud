@@ -1,6 +1,9 @@
 const db = require("../models");
 const Location = db.location;
 const locationUtils = require("../lib/locationUtils.js");
+// const amqp = require("amqplib");
+const amqp = require("amqplib/callback_api");
+const producer = require("../lib/producer.js");
 
 // Create and Save a new Location
 exports.create = (req, res) => {
@@ -14,6 +17,7 @@ exports.create = (req, res) => {
 		...req.body,
 	});
 
+	// return res.send("ok");
 	locationUtils.isSiteValid(req.body.site).then((valid) => {
 		if (valid) {
 			Location.findOne({
@@ -24,6 +28,11 @@ exports.create = (req, res) => {
 						.save(location)
 						.then((data) => {
 							locationUtils.createLocationDetail(location);
+							// try {
+							// 	producer.send(location._doc, "create");
+							// } catch (error) {
+							// 	console.log("message broker error.");
+							// }
 							res.send(data);
 						})
 						.catch((err) => {
@@ -138,4 +147,33 @@ exports.findAll = (req, res) => {
 				message: err.message || "Location not found.",
 			});
 		});
+};
+
+exports.testRabbitMQ = (req, res) => {
+	const message = req.body.message;
+
+	amqp.connect("amqp://localhost", function (error0, connection) {
+		if (error0) {
+			throw error0;
+		}
+		connection.createChannel(function (error1, channel) {
+			if (error1) {
+				throw error1;
+			}
+
+			var queue = "hello";
+			var msg = message;
+
+			channel.assertQueue(queue, {
+				durable: false,
+			});
+			channel.sendToQueue(queue, Buffer.from(msg));
+
+			console.log(" [x] Sent %s", msg);
+		});
+		setTimeout(function () {
+			connection.close();
+		}, 500);
+	});
+	return res.send("message sent.");
 };
